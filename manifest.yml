@@ -1,0 +1,35 @@
+modules:
+  jira:customFieldType:
+    - key: campo-multinivel-configurable-validation
+      name: Campo Multinivel
+      description: A basic custom field with a configurable validation.
+      type: string
+      contextConfig:
+        resource: main
+        layout: basic
+      edit:
+        resource: edit
+        experience:
+          - issue-create
+          - issue-transition
+          - issue-view
+          - portal-request
+        validation:
+          expression: value == null || !!value.match(configuration?.regexp ||
+            "^[A-Za-z]+$")
+          errorMessage: The value is invalid
+resources:
+  - key: main
+    path: static/configurable-validation/build
+  - key: edit
+    path: static/edit/build
+permissions:
+  content:
+    styles:
+      - unsafe-inline
+app:
+  runtime:
+    name: nodejs24.x
+    memoryMB: 256
+    architecture: arm64
+  id: ari:cloud:ecosystem::app/33c54b3f-96ca-45f3-a451-1db699b78e64
