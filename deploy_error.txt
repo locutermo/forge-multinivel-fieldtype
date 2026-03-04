@@ -1,0 +1,81 @@
+Deploying your app to the development environment.
+Press Ctrl+C to cancel.
+
+Running forge lint...
+1 issue found. Run forge lint to review the warnings.
+
+Deploying Campo Multinivel to development...
+
+ℹ Packaging app files
+
+Error: Bundling failed: Module build failed (from ../../../../../.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/josemateocarrasco/Documents/Proyectos/Personal/forge/Campo-Multinivel/src/frontend.jsx: Support for the experimental syntax 'jsx' isn't currently enabled (80:25):
+
+  78 |     };
+  79 |
+> 80 |     if (loading) return <Text>Cargando configuración...</Text>;
+     |                         ^
+  81 |
+  82 |     return (
+  83 |         <Box>
+
+Add @babel/preset-react (https://github.com/babel/babel/tree/main/packages/babel-preset-react) to the 'presets' section of your Babel config to enable transformation.
+If you want to leave it as-is, add @babel/plugin-syntax-jsx (https://github.com/babel/babel/tree/main/packages/babel-plugin-syntax-jsx) to the 'plugins' section to enable parsing.
+
+If you already added the plugin for this syntax to your config, it's possible that your config isn't being loaded.
+You can re-run Babel with the BABEL_SHOW_CONFIG_FOR environment variable to show the loaded configuration:
+	npx cross-env BABEL_SHOW_CONFIG_FOR=/Users/josemateocarrasco/Documents/Proyectos/Personal/forge/Campo-Multinivel/src/frontend.jsx <your build command>
+See https://babeljs.io/docs/configuration#print-effective-configs for more info.
+
+    at constructor (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:367:19)
+    at Parser.raise (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:6627:19)
+    at Parser.expectOnePlugin (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:6661:18)
+    at Parser.parseExprAtom (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:11394:18)
+    at Parser.parseExprSubscripts (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:11076:23)
+    at Parser.parseUpdate (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:11061:21)
+    at Parser.parseMaybeUnary (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:11041:23)
+    at Parser.parseMaybeUnaryOrPrivate (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:10894:61)
+    at Parser.parseExprOps (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:10899:23)
+    at Parser.parseMaybeConditional (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:10876:23)
+    at Parser.parseMaybeAssign (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:10826:21)
+    at Parser.parseExpressionBase (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:10779:23)
+    at /Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:10775:39
+    at Parser.allowInAnd (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12422:16)
+    at Parser.parseExpression (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:10775:17)
+    at Parser.parseReturnStatement (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:13142:28)
+    at Parser.parseStatementContent (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12798:21)
+    at Parser.parseStatementLike (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12767:17)
+    at Parser.parseStatementOrSloppyAnnexBFunctionDeclaration (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12757:17)
+    at Parser.parseIfStatement (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:13130:28)
+    at Parser.parseStatementContent (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12796:21)
+    at Parser.parseStatementLike (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12767:17)
+    at Parser.parseStatementListItem (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12747:17)
+    at Parser.parseBlockOrModuleBlockBody (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:13316:61)
+    at Parser.parseBlockBody (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:13309:10)
+    at Parser.parseBlock (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:13297:10)
+    at Parser.parseFunctionBody (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12101:24)
+    at Parser.parseArrowExpression (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12076:10)
+    at Parser.parseParenAndDistinguishExpression (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:11686:12)
+    at Parser.parseExprAtom (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:11326:23)
+    at Parser.parseExprSubscripts (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:11076:23)
+    at Parser.parseUpdate (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:11061:21)
+    at Parser.parseMaybeUnary (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:11041:23)
+    at Parser.parseMaybeUnaryOrPrivate (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:10894:61)
+    at Parser.parseExprOps (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:10899:23)
+    at Parser.parseMaybeConditional (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:10876:23)
+    at Parser.parseMaybeAssign (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:10826:21)
+    at /Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:10795:39
+    at Parser.allowInAnd (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12422:16)
+    at Parser.parseMaybeAssignAllowIn (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:10795:17)
+    at Parser.parseVar (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:13384:91)
+    at Parser.parseVarStatement (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:13230:10)
+    at Parser.parseStatementContent (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12851:23)
+    at Parser.parseStatementLike (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12767:17)
+    at Parser.parseModuleItem (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12744:17)
+    at Parser.parseBlockOrModuleBlockBody (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:13316:36)
+    at Parser.parseBlockBody (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:13309:10)
+    at Parser.parseProgram (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12625:10)
+    at Parser.parseTopLevel (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:12615:25)
+    at Parser.parse (/Users/josemateocarrasco/.nvm/versions/node/v22.22.0/lib/node_modules/@forge/cli/node_modules/@babel/parser/lib/index.js:14492:10)
+
+Rerunning the command with --verbose may give more details.

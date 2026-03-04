@@ -1,32 +1,39 @@
 modules:
   jira:customFieldType:
-    - key: campo-multinivel-configurable-validation
-      name: Campo Multinivel
-      description: A basic custom field with a configurable validation.
-      type: string
-      contextConfig:
-        resource: main
-        layout: basic
+    - key: triple-cascada-avanzada
+      name: Triple Cascada Avanzada
+      description: "Campo multinivel con tres niveles de selección."
+      type: object
+      readOnly: false
+      formatter:
+        expression: "[value.level1 || value.l1_label, value.level2 || value.l2_label,
+          value.level3 || value.l3_label].filter(i => i != null && i !==
+          'null').join(' > ')"
       edit:
-        resource: edit
+        resource: edit-resource
         experience:
           - issue-create
           - issue-transition
           - issue-view
           - portal-request
-        validation:
-          expression: value == null || !!value.match(configuration?.regexp ||
-            "^[A-Za-z]+$")
-          errorMessage: The value is invalid
+      contextConfig:
+        resource: config-resource
+      resolver:
+        function: resolver-function
+  function:
+    - key: resolver-function
+      handler: index.resolvers
 resources:
-  - key: main
-    path: static/configurable-validation/build
-  - key: edit
+  - key: edit-resource
     path: static/edit/build
+  - key: config-resource
+    path: static/configurable-validation/build
 permissions:
   content:
     styles:
       - unsafe-inline
+  scopes:
+    - storage:app
 app:
   runtime:
     name: nodejs24.x

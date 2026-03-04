@@ -1,23 +1,15 @@
 {
   "name": "configurable-validation-edit",
-  "version": "0.1.69",
+  "version": "1.0.0",
   "private": true,
   "homepage": ".",
   "dependencies": {
-    "@atlaskit/button": "^23.0.8",
-    "@atlaskit/css-reset": "^6.6.2",
-    "@atlaskit/form": "^9.0.10",
-    "@atlaskit/page-header": "^10.4.7",
-    "@atlaskit/section-message": "^6.4.21",
-    "@atlaskit/textfield": "^6.0.1",
     "@forge/bridge": "5.14.0",
-    "react": "^16",
-    "react-dom": "^16",
-    "styled-components": "^6.1.19"
-  },
-  "devDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-scripts": "^5.0.1"
   },
+  "devDependencies": {},
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
