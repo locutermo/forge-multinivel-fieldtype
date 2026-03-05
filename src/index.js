@@ -26,4 +26,5 @@ resolver.define('saveConfig', async ({ payload, context }) => {
     await storage.set(`config-field-${fieldId}`, payload);
 });
 
-exports.resolvers = resolver.getDefinitions();
+export const resolvers = resolver.getDefinitions();
+

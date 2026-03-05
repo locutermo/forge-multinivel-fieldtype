@@ -167,7 +167,44 @@ function App() {
     letterSpacing: '0.04em'
   };
 
-  if (loading) return <p style={{ padding: 10 }}>Cargando opciones...</p>;
+  const Skeleton = () => (
+    <div className="skeleton-container">
+      <div className="skeleton-label"></div>
+      <div className="skeleton-select"></div>
+      <style>{`
+        .skeleton-container {
+          padding: 0px;
+          width: 100%;
+        }
+        .skeleton-label {
+          width: 60px;
+          height: 12px;
+          background: #f4f5f7;
+          margin-bottom: 8px;
+          border-radius: 2px;
+          background: linear-gradient(90deg, #f4f5f7 25%, #ebecf0 50%, #f4f5f7 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+        }
+        .skeleton-select {
+          width: 100%;
+          height: 38px;
+          background: #f4f5f7;
+          border-radius: 4px;
+          margin-bottom: 12px;
+          background: linear-gradient(90deg, #f4f5f7 25%, #ebecf0 50%, #f4f5f7 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+      `}</style>
+    </div>
+  );
+
+  if (loading) return <Skeleton />;
 
   // Advertencia cuando el campo está incompleto (modo portal)
   const isIncomplete = selectedL1 && (!selectedL2 || (level3List.length > 0 && !selectedL3));

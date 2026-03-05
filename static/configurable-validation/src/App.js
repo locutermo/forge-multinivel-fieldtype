@@ -53,7 +53,71 @@ function App() {
     await saveToJira(newOptions);
   };
 
-  if (loading) return <p>Cargando configuración...</p>;
+  const Skeleton = () => (
+    <div className="skeleton-container" style={{ padding: 16 }}>
+      <div className="skeleton-title"></div>
+      <div className="skeleton-button"></div>
+      {[1, 2, 3].map(i => (
+        <div key={i} className="skeleton-item">
+          <div className="skeleton-row"></div>
+          <div className="skeleton-row-sub"></div>
+        </div>
+      ))}
+      <style>{`
+        .skeleton-title {
+          width: 250px;
+          height: 28px;
+          background: #f4f5f7;
+          margin-bottom: 20px;
+          border-radius: 4px;
+          background: linear-gradient(90deg, #f4f5f7 25%, #ebecf0 50%, #f4f5f7 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+        }
+        .skeleton-button {
+          width: 140px;
+          height: 36px;
+          background: #f4f5f7;
+          margin-bottom: 24px;
+          border-radius: 4px;
+          background: linear-gradient(90deg, #f4f5f7 25%, #ebecf0 50%, #f4f5f7 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+        }
+        .skeleton-item {
+          margin-bottom: 16px;
+          border-left: 3px solid #ebecf0;
+          padding-left: 12px;
+        }
+        .skeleton-row {
+          width: 200px;
+          height: 20px;
+          background: #f4f5f7;
+          margin-bottom: 8px;
+          border-radius: 2px;
+          background: linear-gradient(90deg, #f4f5f7 25%, #ebecf0 50%, #f4f5f7 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+        }
+        .skeleton-row-sub {
+          width: 150px;
+          height: 16px;
+          background: #f4f5f7;
+          margin-left: 16px;
+          border-radius: 2px;
+          background: linear-gradient(90deg, #f4f5f7 25%, #ebecf0 50%, #f4f5f7 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+      `}</style>
+    </div>
+  );
+
+  if (loading) return <Skeleton />;
 
   return (
     <div style={{ padding: 16, fontFamily: 'sans-serif' }}>
