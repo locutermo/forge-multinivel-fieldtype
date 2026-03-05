@@ -244,7 +244,7 @@ function App() {
               style={{ ...selectStyle, border: (touched.l1 && errors.l1) ? '2px solid #de350b' : '2px solid #dfe1e6' }}
             >
               <option value="">-- Seleccionar --</option>
-              {(config.options || []).map(opt => (
+              {(config.options || []).filter(opt => !opt.disabled || opt.label === selectedL1).map(opt => (
                 <option key={opt.id} value={opt.label}>{opt.label}</option>
               ))}
             </select>
@@ -262,7 +262,7 @@ function App() {
                 style={{ ...selectStyle, border: (touched.l2 && errors.l2) ? '2px solid #de350b' : '2px solid #dfe1e6' }}
               >
                 <option value="">-- Seleccionar --</option>
-                {level2List.map(opt => (
+                {level2List.filter(opt => !opt.disabled || opt.label === selectedL2).map(opt => (
                   <option key={opt.id} value={opt.label}>{opt.label}</option>
                 ))}
               </select>
@@ -281,7 +281,7 @@ function App() {
                 style={{ ...selectStyle, border: (touched.l3 && errors.l3) ? '2px solid #de350b' : '2px solid #dfe1e6' }}
               >
                 <option value="">-- Seleccionar --</option>
-                {level3List.map(opt => (
+                {level3List.filter(opt => !opt.disabled || opt.label === selectedL3).map(opt => (
                   <option key={opt.id} value={opt.label}>{opt.label}</option>
                 ))}
               </select>
