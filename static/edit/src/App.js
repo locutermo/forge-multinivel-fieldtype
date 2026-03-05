@@ -15,18 +15,38 @@ function App() {
   const [selectedL2, setSelectedL2] = useState('');
   const [selectedL3, setSelectedL3] = useState('');
 
+  // Validation errors
+  const [errors, setErrors] = useState({ l1: false, l2: false, l3: false });
+  const [submitted, setSubmitted] = useState(false);
+  // Track which levels have been touched
+  const [touched, setTouched] = useState({ l1: false, l2: false, l3: false });
+
   // Keep a ref so callbacks always read the latest values
   const stateRef = useRef({ selectedL1: '', selectedL2: '', selectedL3: '' });
 
   const autoSubmit = useCallback(async (l1, l2, l3) => {
+    // Validar que los tres niveles estén completos
+    const newErrors = { l1: !l1, l2: !l2, l3: !l3 };
+    setErrors(newErrors);
+    setSubmitted(true);
+    if (!l1 || !l2 || !l3) return;
     try {
       await view.submit({
-        level1: l1 || null,
-        level2: l2 || null,
-        level3: l3 || null
+        level1: l1,
+        level2: l2,
+        level3: l3
       });
     } catch (err) {
       console.error('Error auto-submitting field:', err);
+    }
+  }, []);
+
+  const clearSubmit = useCallback(async () => {
+    // Borrar cualquier valor previo enviado a Forge
+    try {
+      await view.submit(null);
+    } catch (err) {
+      console.error('Error clearing field:', err);
     }
   }, []);
 
@@ -73,15 +93,15 @@ function App() {
     setSelectedL3('');
     setLevel3List([]);
     stateRef.current = { selectedL1: val, selectedL2: '', selectedL3: '' };
+    setTouched(t => ({ ...t, l1: true }));
+    setErrors(err => ({ ...err, l1: !val, l2: false, l3: false }));
 
     const l1Obj = (config.options || []).find(o => o.label === val);
     const children = l1Obj?.children || [];
     setLevel2List(children);
 
-    // Auto-submit immediately if no children (leaf at level 1)
-    if (children.length === 0 && !isIssueView) {
-      autoSubmit(val, null, null);
-    }
+    // Si el usuario deselecciona, borrar valor previo de Forge
+    if (!val && !isIssueView) clearSubmit();
   };
 
   const handleL2Change = (e) => {
@@ -89,26 +109,33 @@ function App() {
     setSelectedL2(val);
     setSelectedL3('');
     stateRef.current = { ...stateRef.current, selectedL2: val, selectedL3: '' };
+    setTouched(t => ({ ...t, l2: true }));
+    setErrors(err => ({ ...err, l2: !val, l3: false }));
 
     const l1Obj = (config.options || []).find(o => o.label === stateRef.current.selectedL1);
     const l2Obj = (l1Obj?.children || []).find(o => o.label === val);
     const children = l2Obj?.children || [];
     setLevel3List(children);
 
-    // Auto-submit if no children (leaf at level 2)
-    if (children.length === 0 && !isIssueView) {
-      autoSubmit(stateRef.current.selectedL1, val, null);
-    }
+    // Si el usuario deselecciona, borrar valor previo de Forge
+    if (!val && !isIssueView) clearSubmit();
   };
 
   const handleL3Change = (e) => {
     const val = e.target.value;
     setSelectedL3(val);
     stateRef.current = { ...stateRef.current, selectedL3: val };
+    setTouched(t => ({ ...t, l3: true }));
+    setErrors(err => ({ ...err, l3: !val }));
 
-    // Always auto-submit on level 3 selection (leaf)
     if (!isIssueView) {
-      autoSubmit(stateRef.current.selectedL1, stateRef.current.selectedL2, val);
+      if (stateRef.current.selectedL1 && stateRef.current.selectedL2 && val) {
+        // Los tres niveles completos: auto-submit
+        autoSubmit(stateRef.current.selectedL1, stateRef.current.selectedL2, val);
+      } else {
+        // El usuario quitó el valor: borrar en Forge
+        clearSubmit();
+      }
     }
   };
 
@@ -142,6 +169,9 @@ function App() {
 
   if (loading) return <p style={{ padding: 10 }}>Cargando opciones...</p>;
 
+  // Advertencia cuando el campo está incompleto (modo portal)
+  const isIncomplete = selectedL1 && (!selectedL2 || (level3List.length > 0 && !selectedL3));
+
   return (
     <>
       <style>{`
@@ -153,37 +183,74 @@ function App() {
       <div style={{ padding: '0px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
         <form onSubmit={handleIssueViewSave}>
 
+          {isIncomplete && (
+            <div style={{
+              background: '#fffae6',
+              border: '1px solid #ff991f',
+              borderRadius: 4,
+              padding: '8px 12px',
+              marginBottom: 10,
+              fontSize: 12,
+              color: '#974F0C',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6
+            }}>
+              ⚠️ Debes completar los tres niveles antes de enviar el formulario.
+            </div>
+          )}
           <div>
-            <label style={labelStyle}>Nivel 1</label>
-            <select value={selectedL1} onChange={handleL1Change} style={selectStyle}>
+            <label style={labelStyle}>Nivel 1 <span style={{ color: '#de350b' }}>*</span></label>
+            <select
+              value={selectedL1}
+              onChange={handleL1Change}
+              style={{ ...selectStyle, border: (touched.l1 && errors.l1) ? '2px solid #de350b' : '2px solid #dfe1e6' }}
+            >
               <option value="">-- Seleccionar --</option>
               {(config.options || []).map(opt => (
                 <option key={opt.id} value={opt.label}>{opt.label}</option>
               ))}
             </select>
+            {touched.l1 && errors.l1 && (
+              <p style={{ color: '#de350b', fontSize: 11, margin: '-8px 0 8px 0' }}>Este campo es obligatorio</p>
+            )}
           </div>
 
           {selectedL1 && level2List.length > 0 && (
             <div>
-              <label style={labelStyle}>Nivel 2</label>
-              <select value={selectedL2} onChange={handleL2Change} style={selectStyle}>
+              <label style={labelStyle}>Nivel 2 <span style={{ color: '#de350b' }}>*</span></label>
+              <select
+                value={selectedL2}
+                onChange={handleL2Change}
+                style={{ ...selectStyle, border: (touched.l2 && errors.l2) ? '2px solid #de350b' : '2px solid #dfe1e6' }}
+              >
                 <option value="">-- Seleccionar --</option>
                 {level2List.map(opt => (
                   <option key={opt.id} value={opt.label}>{opt.label}</option>
                 ))}
               </select>
+              {touched.l2 && errors.l2 && (
+                <p style={{ color: '#de350b', fontSize: 11, margin: '-8px 0 8px 0' }}>Este campo es obligatorio</p>
+              )}
             </div>
           )}
 
           {selectedL2 && level3List.length > 0 && (
             <div>
-              <label style={labelStyle}>Nivel 3</label>
-              <select value={selectedL3} onChange={handleL3Change} style={selectStyle}>
+              <label style={labelStyle}>Nivel 3 <span style={{ color: '#de350b' }}>*</span></label>
+              <select
+                value={selectedL3}
+                onChange={handleL3Change}
+                style={{ ...selectStyle, border: (touched.l3 && errors.l3) ? '2px solid #de350b' : '2px solid #dfe1e6' }}
+              >
                 <option value="">-- Seleccionar --</option>
                 {level3List.map(opt => (
                   <option key={opt.id} value={opt.label}>{opt.label}</option>
                 ))}
               </select>
+              {touched.l3 && errors.l3 && (
+                <p style={{ color: '#de350b', fontSize: 11, margin: '-8px 0 8px 0' }}>Este campo es obligatorio</p>
+              )}
             </div>
           )}
 
@@ -191,12 +258,12 @@ function App() {
             <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
               <button
                 type="submit"
-                disabled={!selectedL1}
+                disabled={!selectedL1 || !selectedL2 || !selectedL3}
                 style={{
                   padding: '6px 14px',
-                  background: selectedL1 ? '#0052CC' : '#b3d4ff',
+                  background: (selectedL1 && selectedL2 && selectedL3) ? '#0052CC' : '#b3d4ff',
                   color: 'white', border: 'none', borderRadius: 4,
-                  cursor: selectedL1 ? 'pointer' : 'not-allowed',
+                  cursor: (selectedL1 && selectedL2 && selectedL3) ? 'pointer' : 'not-allowed',
                   fontWeight: 600, fontSize: 14
                 }}
               >
