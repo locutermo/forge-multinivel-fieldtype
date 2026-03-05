@@ -118,7 +118,7 @@ function App() {
   }, [selectedL1, selectedL2, selectedL3, autoSubmit]);
 
   const selectStyle = {
-    padding: '8px',
+    //padding: '8px',
     width: '100%',
     marginBottom: 12,
     fontSize: 14,
@@ -129,7 +129,9 @@ function App() {
   };
 
   const labelStyle = {
-    display: 'block',
+    display: 'flex',
+    marginLeft: 0,
+    paddingLeft: 0,
     marginBottom: 4,
     fontSize: 12,
     fontWeight: 600,
@@ -138,77 +140,81 @@ function App() {
     letterSpacing: '0.04em'
   };
 
-  if (loading) return <p style={{ padding: 16 }}>Cargando opciones...</p>;
+  if (loading) return <p style={{ padding: 10 }}>Cargando opciones...</p>;
 
   return (
-    <div style={{ padding: '8px 0', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
-      <form onSubmit={handleIssueViewSave}>
+    <>
+      <style>{`
+        body, #root {
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+      `}</style>
+      <div style={{ padding: '0px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+        <form onSubmit={handleIssueViewSave}>
 
-        <div>
-          <label style={labelStyle}>Nivel 1</label>
-          <select value={selectedL1} onChange={handleL1Change} style={selectStyle}>
-            <option value="">-- Seleccionar --</option>
-            {(config.options || []).map(opt => (
-              <option key={opt.id} value={opt.label}>{opt.label}</option>
-            ))}
-          </select>
-        </div>
-
-        {selectedL1 && level2List.length > 0 && (
           <div>
-            <label style={labelStyle}>Nivel 2</label>
-            <select value={selectedL2} onChange={handleL2Change} style={selectStyle}>
+            <label style={labelStyle}>Nivel 1</label>
+            <select value={selectedL1} onChange={handleL1Change} style={selectStyle}>
               <option value="">-- Seleccionar --</option>
-              {level2List.map(opt => (
+              {(config.options || []).map(opt => (
                 <option key={opt.id} value={opt.label}>{opt.label}</option>
               ))}
             </select>
           </div>
-        )}
 
-        {selectedL2 && level3List.length > 0 && (
-          <div>
-            <label style={labelStyle}>Nivel 3</label>
-            <select value={selectedL3} onChange={handleL3Change} style={selectStyle}>
-              <option value="">-- Seleccionar --</option>
-              {level3List.map(opt => (
-                <option key={opt.id} value={opt.label}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
-        )}
+          {selectedL1 && level2List.length > 0 && (
+            <div>
+              <label style={labelStyle}>Nivel 2</label>
+              <select value={selectedL2} onChange={handleL2Change} style={selectStyle}>
+                <option value="">-- Seleccionar --</option>
+                {level2List.map(opt => (
+                  <option key={opt.id} value={opt.label}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
-        {/* Only show Save/Cancel in issue-view inline edit mode */}
-        {isIssueView && (
-          <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-            <button
-              type="submit"
-              disabled={!selectedL1}
-              style={{
-                padding: '6px 14px',
-                background: selectedL1 ? '#0052CC' : '#b3d4ff',
-                color: 'white',
-                border: 'none',
-                borderRadius: 4,
-                cursor: selectedL1 ? 'pointer' : 'not-allowed',
-                fontWeight: 600,
-                fontSize: 14
-              }}
-            >
-              Guardar
-            </button>
-            <button
-              type="button"
-              onClick={view.close}
-              style={{ padding: '6px 14px', background: '#f4f5f7', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 14 }}
-            >
-              Cancelar
-            </button>
-          </div>
-        )}
+          {selectedL2 && level3List.length > 0 && (
+            <div>
+              <label style={labelStyle}>Nivel 3</label>
+              <select value={selectedL3} onChange={handleL3Change} style={selectStyle}>
+                <option value="">-- Seleccionar --</option>
+                {level3List.map(opt => (
+                  <option key={opt.id} value={opt.label}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
-      </form>
-    </div>
+          {isIssueView && (
+            <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+              <button
+                type="submit"
+                disabled={!selectedL1}
+                style={{
+                  padding: '6px 14px',
+                  background: selectedL1 ? '#0052CC' : '#b3d4ff',
+                  color: 'white', border: 'none', borderRadius: 4,
+                  cursor: selectedL1 ? 'pointer' : 'not-allowed',
+                  fontWeight: 600, fontSize: 14
+                }}
+              >
+                Guardar
+              </button>
+              <button
+                type="button"
+                onClick={view.close}
+                style={{ padding: '6px 14px', background: '#f4f5f7', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 14 }}
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
+
+        </form>
+      </div>
+    </>
   );
 }
 

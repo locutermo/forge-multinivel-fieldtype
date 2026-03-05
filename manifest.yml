@@ -8,7 +8,7 @@ modules:
       formatter:
         expression: "[value.level1 || value.l1_label, value.level2 || value.l2_label,
           value.level3 || value.l3_label].filter(i => i != null && i !==
-          'null').join(' > ')"
+          'null').join(' - ')"
       edit:
         resource: edit-resource
         experience:
@@ -26,14 +26,23 @@ modules:
 resources:
   - key: edit-resource
     path: static/edit/build
+    tunnel:
+      port: 3000
   - key: config-resource
     path: static/configurable-validation/build
+    tunnel:
+      port: 3001
 permissions:
   content:
     styles:
       - unsafe-inline
   scopes:
     - storage:app
+    - read:jira-work
+    - write:jira-work
+    - read:jira-user
+    - read:servicedesk-request
+    - write:servicedesk-request
 app:
   runtime:
     name: nodejs24.x
