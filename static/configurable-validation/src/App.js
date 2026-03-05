@@ -57,7 +57,7 @@ function App() {
     <div className="skeleton-container" style={{ padding: 16 }}>
       <div className="skeleton-title"></div>
       <div className="skeleton-button"></div>
-      {[1, 2, 3].map(i => (
+      {[1].map(i => (
         <div key={i} className="skeleton-item">
           <div className="skeleton-row"></div>
           <div className="skeleton-row-sub"></div>

@@ -6,9 +6,8 @@ modules:
       type: object
       readOnly: false
       formatter:
-        expression: "[value.level1 || value.l1_label, value.level2 || value.l2_label,
-          value.level3 || value.l3_label].filter(i => i != null && i !==
-          'null').join(' - ')"
+        expression: "[value.level1 || value.l1_label, value.level2 || value.l2_label, value.level3 || value.l3_label].filter(i => i != null && i != 'null').join(' - ')"
+
       edit:
         resource: edit-resource
         experience:
