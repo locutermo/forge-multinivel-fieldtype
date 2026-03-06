@@ -82,6 +82,9 @@ function App() {
           }
         }
       }
+    }).catch(err => {
+      console.error('Error in initialization:', err);
+    }).finally(() => {
       setLoading(false);
     });
   }, []);
@@ -174,6 +177,7 @@ function App() {
       <style>{`
         .skeleton-container {
           padding: 0px;
+          margin-left: 0;
           width: 100%;
         }
         .skeleton-label {
@@ -200,6 +204,7 @@ function App() {
           0% { background-position: -200% 0; }
           100% { background-position: 200% 0; }
         }
+        body, #root { margin: 0 !important; padding: 0 !important; }
       `}</style>
     </div>
   );
@@ -308,7 +313,13 @@ function App() {
               </button>
               <button
                 type="button"
-                onClick={view.close}
+                onClick={async () => {
+                  try {
+                    await view.close();
+                  } catch (e) {
+                    console.warn('View is not closable in this context', e);
+                  }
+                }}
                 style={{ padding: '6px 14px', background: '#f4f5f7', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 14 }}
               >
                 Cancelar

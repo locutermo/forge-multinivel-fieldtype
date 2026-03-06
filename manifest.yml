@@ -6,13 +6,20 @@ modules:
       type: object
       readOnly: false
       formatter:
-        expression: "[value.level1 || value.l1_label, value.level2 || value.l2_label, value.level3 || value.l3_label].filter(i => i != null && i != 'null').join(' - ')"
+        expression: "[value.level1,value.level2,value.level3].join(' - ')"
 
       edit:
         resource: edit-resource
         experience:
           - issue-create
           - issue-transition
+          - issue-view
+          - portal-request
+      view:
+        formatter:
+          expression: "[value.level1,value.level2,value.level3].join(' - ')"
+        render: native
+        experience:
           - issue-view
           - portal-request
       contextConfig:
@@ -31,6 +38,7 @@ resources:
     path: static/configurable-validation/build
     tunnel:
       port: 3001
+    
 permissions:
   content:
     styles:

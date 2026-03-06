@@ -14,10 +14,16 @@ function App() {
   const [selectedPath, setSelectedPath] = useState([null, null]); // [selectedL1Id, selectedL2Id]
 
   useEffect(() => {
-    invoke('getConfig').then((data) => {
-      setConfig(data || { options: [] });
-      setLoading(false);
-    });
+    invoke('getConfig')
+      .then((data) => {
+        setConfig(data || { options: [] });
+      })
+      .catch((err) => {
+        console.error('Error loading config:', err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   const saveToJira = useCallback(async (newOptions) => {
@@ -150,7 +156,7 @@ function App() {
   };
 
   const Skeleton = () => (
-    <div className="skeleton-container" style={{ padding: 16 }}>
+    <div className="skeleton-container" style={{ padding: 0 }}>
       <div className="skeleton-title"></div>
       <div className="skeleton-grid">
         <div className="skeleton-col"></div>
@@ -162,6 +168,7 @@ function App() {
         .skeleton-grid { display: flex; gap: 16px; }
         .skeleton-col { flex: 1; height: 400px; background: #f4f5f7; border-radius: 8px; animation: shimmer 1.5s infinite; }
         @keyframes shimmer { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        body, #root { margin: 0 !important; padding: 0 !important; }
       `}</style>
     </div>
   );
