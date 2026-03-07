@@ -27,3 +27,4 @@ resolver.define('saveConfig', async ({ payload, context }) => {
 });
 
 export const resolvers = resolver.getDefinitions();
+
