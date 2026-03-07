@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "homepage": ".",
+  "devDependencies": {
+    "@craco/craco": "^7.1.0"
+  },
   "dependencies": {
     "@atlaskit/css-reset": "^7.3.13",
     "@atlaskit/primitives": "^18.0.1",
@@ -15,8 +18,8 @@
     "styled-components": "^6.3.11"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "craco start",
+    "build": "craco build",
     "eject": "react-scripts eject"
   },
   "browserslist": {

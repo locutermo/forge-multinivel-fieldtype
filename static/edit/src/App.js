@@ -84,23 +84,26 @@ function App() {
       if (existingVal && existingVal.level1) {
         const l1Val = existingVal.level1;
         const l1Obj = (cfg.options || []).find(o => o.label === l1Val);
-        if (l1Obj) {
+        // Only restore selection if the option is not disabled
+        if (l1Obj && !l1Obj.disabled) {
           const l1Option = { label: l1Obj.label, value: l1Obj.id || l1Obj.label };
           setSelectedL1(l1Option);
 
-          if (l1Obj.children) {
-            setLevel2List(l1Obj.children);
+          const l2Enabled = (l1Obj.children || []).filter(c => !c.disabled);
+          if (l2Enabled.length > 0) {
+            setLevel2List(l2Enabled);
             const l2Val = existingVal.level2 || '';
             const l2Obj = (l1Obj.children || []).find(o => o.label === l2Val);
-            if (l2Obj) {
+            if (l2Obj && !l2Obj.disabled) {
               const l2Option = { label: l2Obj.label, value: l2Obj.id || l2Obj.label };
               setSelectedL2(l2Option);
 
-              if (l2Obj.children) {
-                setLevel3List(l2Obj.children);
+              const l3Enabled = (l2Obj.children || []).filter(c => !c.disabled);
+              if (l3Enabled.length > 0) {
+                setLevel3List(l3Enabled);
                 const l3Val = existingVal.level3 || '';
                 const l3Obj = (l2Obj.children || []).find(o => o.label === l3Val);
-                if (l3Obj) {
+                if (l3Obj && !l3Obj.disabled) {
                   const l3Option = { label: l3Obj.label, value: l3Obj.id || l3Obj.label };
                   setSelectedL3(l3Option);
                 }
@@ -201,8 +204,9 @@ function App() {
     }),
   };
 
+  // Only show options that are not disabled; disabled options are hidden from the form
   const formatOptions = (options) => {
-    return (options || []).map(opt => ({ label: opt.label, value: opt.id || opt.label }));
+    return (options || []).filter(opt => !opt.disabled).map(opt => ({ label: opt.label, value: opt.id || opt.label }));
   };
 
   const l1Options = useMemo(() => formatOptions(config.options), [config.options]);
@@ -217,7 +221,7 @@ function App() {
         .skeleton-label { width: 60px; height: 12px; background: #f4f5f7; margin-bottom: 8px; border-radius: 2px;
           background: linear-gradient(90deg, #f4f5f7 25%, #ebecf0 50%, #f4f5f7 75%);
           background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        .skeleton-select { width: 300px; height: 38px; background: #f4f5f7; border-radius: 4px; margin-bottom: 12px;
+        .skeleton-select { width: auto; height: 38px; background: #f4f5f7; border-radius: 4px; margin-bottom: 12px;
           background: linear-gradient(90deg, #f4f5f7 25%, #ebecf0 50%, #f4f5f7 75%);
           background-size: 200% 100%; animation: shimmer 1.5s infinite; }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
