@@ -20,8 +20,7 @@ export const LABEL_STYLE = {
   fontSize: 12,
   fontWeight: 600,
   color: COLORS.label,
-  textTransform: 'uppercase',
-  letterSpacing: '0.04em',
+  letterSpacing: '0.01em',
 };
 
 /** Estilos para el componente Select de Atlaskit */

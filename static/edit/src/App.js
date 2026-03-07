@@ -217,7 +217,7 @@ function App() {
           }}
         >
           <LevelSelect
-            label="Nivel 1"
+            label="Sistema"
             options={l1Options}
             value={selectedL1}
             onChange={handleL1Change}
@@ -227,7 +227,7 @@ function App() {
 
           {selectedL1 && level2List.length > 0 && (
             <LevelSelect
-              label="Nivel 2"
+              label="Aplicación"
               options={l2Options}
               value={selectedL2}
               onChange={handleL2Change}
@@ -238,7 +238,7 @@ function App() {
 
           {selectedL2 && level3List.length > 0 && (
             <LevelSelect
-              label="Nivel 3"
+              label="Tipificación"
               options={l3Options}
               value={selectedL3}
               onChange={handleL3Change}
