@@ -105,8 +105,8 @@ function Column({
               <div
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
+                  flexDirection: 'column',
+                  gap: 2,
                   flex: 1,
                   overflow: 'hidden',
                 }}
@@ -120,6 +120,20 @@ function Column({
                 >
                   {item.label}
                 </span>
+                {/* Tipo de solicitud JSM – solo en Nivel 1 y si tiene uno asignado */}
+                {level === 1 && item.requestTypeName && (
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: COLORS.textMuted,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {item.requestTypeName}
+                  </span>
+                )}
                 {item.disabled && (
                   <span
                     style={{

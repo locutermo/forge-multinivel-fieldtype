@@ -26,7 +26,11 @@ export const LABEL_STYLE = {
 /** Estilos para el componente Select de Atlaskit */
 export const SELECT_STYLES = {
   container: (base) => ({ ...base, width: 'auto' }),
+  // Necesario para que el dropdown flote SOBRE el contenido cuando usa menuPortalTarget
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+  // Necesario para que el dropdown flote SOBRE el contenido en position=absolute
+  menu: (base) => ({ ...base, zIndex: 9999, position: 'absolute' }),
+  menuList: (base) => ({ ...base, maxHeight: 200 }),
 };
 
 /**

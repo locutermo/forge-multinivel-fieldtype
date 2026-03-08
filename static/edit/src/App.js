@@ -39,6 +39,15 @@ function App() {
   const [touched, setTouched] = useState({ l1: false, l2: false, l3: false });
   const [menuOpen, setMenuOpen] = useState(false);
 
+  /**
+   * requestTypeId del contexto del portal JSM.
+   * Cuando el campo se renderiza dentro de un formulario de portal, el backend
+   * devuelve este id. Lo usamos para filtrar las opciones de Nivel 1: sólo
+   * mostramos las que tengan el mismo requestTypeId asociado.
+   * Es null cuando el campo se abre desde la vista de issue normal.
+   */
+  const [contextRequestTypeId, setContextRequestTypeId] = useState(null);
+
   const l1Ref = useRef(null);
   const l2Ref = useRef(null);
   const l3Ref = useRef(null);
@@ -92,11 +101,29 @@ function App() {
   }, []);
 
   useEffect(() => {
-    Promise.all([invoke('getConfig'), view.getContext()])
-      .then(([data, ctx]) => {
+    // Cargamos la configuración del campo, el contexto del frontend (view.getContext)
+    // y el contexto enriquecido del backend (invoke 'getContext') en paralelo.
+    // El contexto del backend incluye requestTypeId cuando se abre desde el portal JSM.
+    Promise.all([invoke('getConfig'), view.getContext(), invoke('getContext')])
+      .then(([data, ctx, extCtx]) => {
         const cfg = data || { options: [] };
         setConfig(cfg);
         setIsIssueView(ctx?.extension?.renderContext === 'issue-view');
+
+        // Estructura confirmada del contexto del portal JSM:
+        //   extension.request.typeId  → id del tipo de solicitud activo (ej. 1033)
+        // Mantenemos rutas alternativas como fallback para otros entornos.
+        const rtId =
+          ctx?.extension?.request?.typeId ??
+          extCtx?.request?.typeId ??
+          extCtx?.requestType?.id ??
+          extCtx?.requestTypeId ??
+          ctx?.extension?.requestType?.id ??
+          ctx?.extension?.requestTypeId ??
+          null;
+
+        setContextRequestTypeId(rtId ? String(rtId) : null);
+        console.log('[edit] contextRequestTypeId resolved to:', rtId);
 
         const initial = getInitialSelectionState(cfg, ctx?.extension?.fieldValue);
         if (initial) {
@@ -129,7 +156,9 @@ function App() {
       const l1Obj = (config.options || []).find((o) => (o.id || o.label) === option?.value);
       setLevel2List(l1Obj?.children || []);
 
-      if (!option && !isIssueView) clearSubmit();
+      // Siempre limpiamos el valor enviado cuando L1 cambia, porque cualquier
+      // combinación L2/L3 previamente auto-enviada ya no es válida.
+      if (!isIssueView) clearSubmit();
     },
     [config.options, isIssueView, clearSubmit]
   );
@@ -145,7 +174,11 @@ function App() {
       const l2Obj = (l1Obj?.children || []).find((o) => (o.id || o.label) === option?.value);
       setLevel3List(l2Obj?.children || []);
 
-      if (!option && !isIssueView) clearSubmit();
+      // Siempre limpiamos el valor enviado cuando L2 cambia: el L3 que se
+      // auto-envió previamente ya no corresponde a esta combinación L1+L2.
+      // Si no lo limpiamos, Jira mantiene el valor antiguo y la validación
+      // del portal pasa aunque el L3 esté vacío visualmente.
+      if (!isIssueView) clearSubmit();
     },
     [config.options, selectedL1, isIssueView, clearSubmit]
   );
@@ -175,7 +208,32 @@ function App() {
     [selectedL1, selectedL2, selectedL3, autoSubmit]
   );
 
-  const l1Options = useMemo(() => formatOptions(config.options), [config.options]);
+  /**
+   * Opciones de Nivel 1 filtradas por requestTypeId del contexto del portal.
+   *
+   * - Si el campo se abre desde el portal JSM y tenemos un contextRequestTypeId,
+   *   solo mostramos las opciones de L1 cuyo requestTypeId coincida.
+   * - Si no hay requestTypeId en el contexto (issue-view, issue-create normal, etc.)
+   *   o si ninguna opción tiene requestTypeId asignado, mostramos todas.
+   */
+  const l1Options = useMemo(() => {
+    const allOptions = config.options || [];
+
+    // Solo filtramos si hay un requestTypeId activo en el contexto del portal.
+    if (contextRequestTypeId) {
+      const filtered = allOptions.filter(
+        (opt) => opt.requestTypeId && String(opt.requestTypeId) === contextRequestTypeId
+      );
+      // Si el filtro produce resultados, usamos solo esos; si no, mostramos todos
+      // (previene pantalla vacía ante configuraciones incompletas).
+      if (filtered.length > 0) {
+        return formatOptions(filtered);
+      }
+    }
+
+    return formatOptions(allOptions);
+  }, [config.options, contextRequestTypeId]);
+
   const l2Options = useMemo(() => formatOptions(level2List), [level2List]);
   const l3Options = useMemo(() => formatOptions(level3List), [level3List]);
 
@@ -196,9 +254,7 @@ function App() {
         .form-container {
           padding: 0; margin: 0; width: 100%;
           display: flex; flex-direction: column; align-items: flex-start;
-          padding-bottom: ${menuOpen ? '80px' : '0'};
           overflow: visible !important;
-          transition: padding-bottom 0.2s ease-out;
         }
       `}</style>
       <div
