@@ -156,7 +156,9 @@ function App() {
       const l1Obj = (config.options || []).find((o) => (o.id || o.label) === option?.value);
       setLevel2List(l1Obj?.children || []);
 
-      if (!option && !isIssueView) clearSubmit();
+      // Siempre limpiamos el valor enviado cuando L1 cambia, porque cualquier
+      // combinación L2/L3 previamente auto-enviada ya no es válida.
+      if (!isIssueView) clearSubmit();
     },
     [config.options, isIssueView, clearSubmit]
   );
@@ -172,7 +174,11 @@ function App() {
       const l2Obj = (l1Obj?.children || []).find((o) => (o.id || o.label) === option?.value);
       setLevel3List(l2Obj?.children || []);
 
-      if (!option && !isIssueView) clearSubmit();
+      // Siempre limpiamos el valor enviado cuando L2 cambia: el L3 que se
+      // auto-envió previamente ya no corresponde a esta combinación L1+L2.
+      // Si no lo limpiamos, Jira mantiene el valor antiguo y la validación
+      // del portal pasa aunque el L3 esté vacío visualmente.
+      if (!isIssueView) clearSubmit();
     },
     [config.options, selectedL1, isIssueView, clearSubmit]
   );
