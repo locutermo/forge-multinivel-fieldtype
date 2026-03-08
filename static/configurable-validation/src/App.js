@@ -316,11 +316,25 @@ function App() {
       const newOptions = cloneOptions(config.options);
       const item = findItemInTree(newOptions, editState.ids);
       if (!item) return;
+
       item.label = updatedLabel;
+
+      if (editState.level === 1) {
+        if (selectedRequestTypeId) {
+          const rt = requestTypes.find((r) => String(r.id) === String(selectedRequestTypeId));
+          item.requestTypeId = rt?.id || null;
+          item.requestTypeName = rt?.name || null;
+        } else {
+          item.requestTypeId = null;
+          item.requestTypeName = null;
+        }
+      }
+
       setEditState(EMPTY_EDIT);
+      setSelectedRequestTypeId('');
       await saveToJira(config.projectKey, newOptions);
     },
-    [config.options, config.projectKey, editState, saveToJira]
+    [config.options, config.projectKey, editState, selectedRequestTypeId, requestTypes, saveToJira]
   );
 
   const removeLevel = useCallback(async () => {
@@ -363,8 +377,10 @@ function App() {
         label: item.label,
         currentlyDisabled: item.disabled,
       }),
-    onEdit: (item) =>
-      setEditState({ level, ids: [...parentIds, item.id], label: item.label }),
+    onEdit: (item) => {
+      setEditState({ level, ids: [...parentIds, item.id], label: item.label });
+      if (level === 1) setSelectedRequestTypeId(item.requestTypeId ? String(item.requestTypeId) : '');
+    },
     onDelete: (item) =>
       setDeleteConfirm({ level, ids: [...parentIds, item.id], label: item.label }),
   });
@@ -571,7 +587,10 @@ function App() {
       {editState.level !== null && (
         <Modal
           title={`Editar Nivel ${editState.level}`}
-          onClose={() => setEditState(EMPTY_EDIT)}
+          onClose={() => {
+            setEditState(EMPTY_EDIT);
+            setSelectedRequestTypeId('');
+          }}
           onSubmit={confirmEdit}
           submitLabel="Guardar Cambios"
         >
@@ -582,6 +601,39 @@ function App() {
             style={INPUT_STYLE}
             autoFocus
           />
+
+          {/* Selector de tipo de solicitud – solo para Nivel 1 */}
+          {editState.level === 1 && (
+            <div style={{ marginTop: 12 }}>
+              <label
+                style={{ display: 'block', fontSize: 12, fontWeight: 600, color: COLORS.textSecondary, marginBottom: 4 }}
+              >
+                Tipo de solicitud JSM asociado
+              </label>
+              {loadingRequestTypes ? (
+                <p style={{ margin: 0, color: COLORS.textMuted, fontSize: 13 }}>Cargando tipos de solicitud...</p>
+              ) : requestTypes.length > 0 ? (
+                <select
+                  value={selectedRequestTypeId}
+                  onChange={(e) => setSelectedRequestTypeId(e.target.value)}
+                  style={SELECT_STYLE}
+                >
+                  <option value="">— Selecciona un tipo de solicitud —</option>
+                  {requestTypes.map((rt) => (
+                    <option key={rt.id} value={rt.id}>
+                      {rt.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p style={{ margin: 0, color: COLORS.dangerBg, fontSize: 13 }}>
+                  {config.projectKey
+                    ? `No hay tipos disponibles para "${config.projectKey}". Verifica el proyecto.`
+                    : 'Configura primero la clave del proyecto JSM.'}
+                </p>
+              )}
+            </div>
+          )}
         </Modal>
       )}
 

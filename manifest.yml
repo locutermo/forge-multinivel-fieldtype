@@ -3,10 +3,7 @@ modules:
     - key: triple-cascada-avanzada
       name: Triple Cascada Avanzada
       description: "Campo multinivel con tres niveles de selección."
-      type: object
-      readOnly: false
-      formatter:
-        expression: "[value.level1,value.level2,value.level3].join(' - ')"
+      type: string
 
       edit:
         resource: edit-resource
@@ -17,11 +14,11 @@ modules:
           - portal-request
       view:
         formatter:
-          expression: "[value.level1,value.level2,value.level3].join(' - ')"
+          expression: value
         render: native
         experience:
           - issue-view
-          - portal-request
+          - portal-view
       contextConfig:
         resource: config-resource
       resolver:

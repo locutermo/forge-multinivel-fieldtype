@@ -80,11 +80,14 @@ function App() {
       if (newErrors.l3) return l3Ref.current?.focus();
 
       try {
-        await view.submit({
-          level1: l1.label,
-          level2: l2 ? l2.label : '',
-          level3: l3 ? l3.label : '',
-        });
+        // El campo es de tipo string: enviamos el valor ya formateado como texto plano.
+        // Esto permite que Jira lo exporte a CSV/Excel correctamente.
+        const parts = [
+          l1.label,
+          l2 ? l2.label : '',
+          l3 ? l3.label : '',
+        ].filter(Boolean);
+        await view.submit(parts.join(' - '));
       } catch (err) {
         console.error('Error auto-submitting field:', err);
       }
@@ -125,6 +128,8 @@ function App() {
         setContextRequestTypeId(rtId ? String(rtId) : null);
         console.log('[edit] contextRequestTypeId resolved to:', rtId);
 
+        // El valor del campo ahora es un string plano (ej. "Soft. Interno - Sific - Error").
+        // Lo pasamos directamente a getInitialSelectionState, que lo parseará internamente.
         const initial = getInitialSelectionState(cfg, ctx?.extension?.fieldValue);
         if (initial) {
           setSelectedL1(initial.selectedL1);

@@ -54,15 +54,37 @@ export function formatOptions(options) {
 /**
  * Obtiene el estado inicial (selecciones y listas de niveles) a partir de la
  * configuración y del valor guardado en el contexto.
+ *
+ * El campo ahora es de tipo `string`. El valor guardado es un string plano con
+ * el formato "Nivel1 - Nivel2 - Nivel3". Por retrocompatibilidad también
+ * aceptamos el formato antiguo de objeto { level1, level2, level3 }.
+ *
  * @param {{ options: Array }} config - Configuración del campo
- * @param {{ level1?: string, level2?: string, level3?: string } | null} existingVal - Valor actual del campo
+ * @param {string | { level1?: string, level2?: string, level3?: string } | null} existingVal - Valor actual del campo
  * @returns {{ selectedL1, selectedL2, selectedL3, level2List, level3List } | null} Estado a restaurar o null
  */
 export function getInitialSelectionState(config, existingVal) {
-  if (!existingVal?.level1) return null;
+  if (!existingVal) return null;
+
+  // --- Normalización del valor ---
+  // Si el valor es un string (nuevo formato), lo partimos por " - ".
+  // Si es un objeto (formato legado), usamos sus propiedades directamente.
+  let level1, level2, level3;
+  if (typeof existingVal === 'string') {
+    const parts = existingVal.split(' - ');
+    level1 = parts[0] || '';
+    level2 = parts[1] || '';
+    level3 = parts[2] || '';
+  } else {
+    level1 = existingVal.level1 || '';
+    level2 = existingVal.level2 || '';
+    level3 = existingVal.level3 || '';
+  }
+
+  if (!level1) return null;
 
   const options = config?.options || [];
-  const l1Obj = options.find((o) => o.label === existingVal.level1);
+  const l1Obj = options.find((o) => o.label === level1);
   if (!l1Obj || l1Obj.disabled) return null;
 
   const l1Option = toSelectOption(l1Obj);
@@ -72,8 +94,7 @@ export function getInitialSelectionState(config, existingVal) {
     return { selectedL1: l1Option, selectedL2: null, selectedL3: null, level2List: [], level3List: [] };
   }
 
-  const l2Val = existingVal.level2 || '';
-  const l2Obj = (l1Obj.children || []).find((o) => o.label === l2Val);
+  const l2Obj = (l1Obj.children || []).find((o) => o.label === level2);
   if (!l2Obj || l2Obj.disabled) {
     return { selectedL1: l1Option, selectedL2: null, selectedL3: null, level2List: l2Children, level3List: [] };
   }
@@ -91,8 +112,7 @@ export function getInitialSelectionState(config, existingVal) {
     };
   }
 
-  const l3Val = existingVal.level3 || '';
-  const l3Obj = (l2Obj.children || []).find((o) => o.label === l3Val);
+  const l3Obj = (l2Obj.children || []).find((o) => o.label === level3);
   const l3Option = l3Obj && !l3Obj.disabled ? toSelectOption(l3Obj) : null;
 
   return {
