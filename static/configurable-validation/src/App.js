@@ -75,6 +75,16 @@ function App() {
   /** Tipo de solicitud seleccionado en el modal de Nivel 1 */
   const [selectedRequestTypeId, setSelectedRequestTypeId] = useState('');
 
+  // ── Estado del modal de importación masiva ───────────────────────────────────
+  /** true cuando el modal de importación está visible */
+  const [showImport, setShowImport] = useState(false);
+  /** Texto JSON que el usuario escribe/pega en el textarea de importación */
+  const [importText, setImportText] = useState('');
+  /** true mientras se procesa y guarda la importación */
+  const [importing, setImporting] = useState(false);
+  /** Mensaje de error de la última importación fallida */
+  const [importError, setImportError] = useState('');
+
   // ── Carga inicial ────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -110,6 +120,92 @@ function App() {
     }
   };
 
+  // ── Conversión flat ↔ árbol ─────────────────────────────────────────────────
+
+  /**
+   * Convierte la config interna (árbol de opciones) al formato plano que el usuario maneja:
+   * [{ level1: { value, requestTypeId }, level2, level3 }, ...]
+   * Se usa para pre-cargar el textarea al abrir el modal de importación.
+   */
+  const exportConfigToFlat = useCallback((options) => {
+    const rows = [];
+    for (const l1 of (options || [])) {
+      const l1Node = { value: l1.label, requestTypeId: l1.requestTypeId ?? null };
+      if (!l1.children || l1.children.length === 0) {
+        rows.push({ level1: l1Node, level2: '', level3: '' });
+      } else {
+        for (const l2 of l1.children) {
+          if (!l2.children || l2.children.length === 0) {
+            rows.push({ level1: l1Node, level2: l2.label, level3: '' });
+          } else {
+            for (const l3 of l2.children) {
+              rows.push({ level1: l1Node, level2: l2.label, level3: l3.label });
+            }
+          }
+        }
+      }
+    }
+    return rows;
+  }, []);
+
+  /**
+   * Convierte el formato plano importado en el árbol de opciones interno.
+   * Agrupa por level1.value → level2 → level3.
+   * Busca requestTypeName en la lista de tipos ya cargados.
+   * @param {Array} rows  Array de { level1: { value, requestTypeId }, level2, level3 }
+   * @returns {Array}     Árbol de opciones compatible con el KV
+   */
+  const buildOptionsFromFlat = useCallback((rows) => {
+    // Mapa para acumular el árbol: l1Label → { node, l2Map }
+    const l1Map = new Map();
+
+    for (const row of rows) {
+      // El level1 puede ser objeto { value, requestTypeId } o string (compatibilidad)
+      const l1Label = typeof row.level1 === 'object' ? row.level1.value : row.level1;
+      const l1ReqTypeId = typeof row.level1 === 'object' ? row.level1.requestTypeId : null;
+      const l2Label = row.level2 || '';
+      const l3Label = row.level3 || '';
+
+      if (!l1Label) continue;
+
+      // Crear nodo L1 si no existe
+      if (!l1Map.has(l1Label)) {
+        // Intentamos encontrar el requestTypeName en los tipos cargados
+        const rt = requestTypes.find((r) => String(r.id) === String(l1ReqTypeId));
+        l1Map.set(l1Label, {
+          node: {
+            id: generateId(),
+            label: l1Label,
+            requestTypeId: l1ReqTypeId ?? null,
+            requestTypeName: rt?.name ?? null,
+            children: [],
+          },
+          l2Map: new Map(),
+        });
+      }
+
+      const { node: l1Node, l2Map } = l1Map.get(l1Label);
+      if (!l2Label) continue;
+
+      // Crear nodo L2 si no existe
+      if (!l2Map.has(l2Label)) {
+        const l2Node = { id: generateId(), label: l2Label, children: [] };
+        l1Node.children.push(l2Node);
+        l2Map.set(l2Label, l2Node);
+      }
+
+      const l2Node = l2Map.get(l2Label);
+      if (!l3Label) continue;
+
+      // Agregar nodo L3 solo si no existe ya
+      if (!l2Node.children.some((c) => c.label === l3Label)) {
+        l2Node.children.push({ id: generateId(), label: l3Label });
+      }
+    }
+
+    return Array.from(l1Map.values()).map(({ node }) => node);
+  }, [requestTypes]);
+
   // ── Persistencia ─────────────────────────────────────────────────────────────
 
   /**
@@ -121,6 +217,36 @@ function App() {
     setConfig(newConfig);
     await invoke('saveConfig', newConfig);
   }, []);
+
+  /**
+   * Procesa el JSON pegado en el textarea, construye el árbol y lo guarda en KV.
+   * Reemplaza COMPLETAMENTE la configuración existente.
+   * NOTA: debe declararse después de saveToJira para evitar TDZ (Temporal Dead Zone).
+   */
+  const handleImport = useCallback(async (e) => {
+    e.preventDefault();
+    setImportError('');
+    let rows;
+    try {
+      rows = JSON.parse(importText);
+      if (!Array.isArray(rows)) throw new Error('El JSON debe ser un array [ ... ]');
+    } catch (err) {
+      setImportError(`JSON inválido: ${err.message}`);
+      return;
+    }
+    setImporting(true);
+    try {
+      const newOptions = buildOptionsFromFlat(rows);
+      await saveToJira(config.projectKey, newOptions);
+      setShowImport(false);
+      setImportText('');
+    } catch (err) {
+      setImportError(`Error al guardar: ${err.message}`);
+    } finally {
+      setImporting(false);
+    }
+  }, [importText, buildOptionsFromFlat, saveToJira, config.projectKey]);
+
 
   /**
    * Guarda solo la clave del proyecto JSM y recarga los tipos de solicitud.
@@ -319,8 +445,71 @@ function App() {
               No se encontraron tipos de solicitud para "{config.projectKey}"
             </span>
           )}
+          {/* Botón para abrir el modal de importación masiva */}
+          <button
+            type="button"
+            onClick={() => {
+              setImportText(JSON.stringify(exportConfigToFlat(config.options), null, 2));
+              setImportError('');
+              setShowImport(true);
+            }}
+            style={{
+              padding: '8px 14px',
+              background: 'white',
+              color: COLORS.primary,
+              border: `1px solid ${COLORS.primary}`,
+              borderRadius: 4,
+              cursor: 'pointer',
+              fontWeight: 500,
+              whiteSpace: 'nowrap',
+              fontSize: 13,
+            }}
+          >
+            📋 Importar / Ver JSON
+          </button>
         </form>
       </div>
+
+      {/* ── Modal de importación masiva ──────────────────────────────────────── */}
+      {showImport && (
+        <Modal
+          title="Importar / Exportar configuración"
+          onClose={() => setShowImport(false)}
+          onSubmit={handleImport}
+          submitLabel={importing ? 'Importando...' : 'Aplicar'}
+        >
+          <p style={{ margin: '0 0 8px 0', fontSize: 13, color: COLORS.textSecondary }}>
+            Edita o pega el JSON con la configuración completa. Al hacer clic en{' '}
+            <strong>Aplicar</strong> se reemplazarán <strong>todas</strong> las opciones actuales.
+          </p>
+          <p style={{ margin: '0 0 10px 0', fontSize: 12, color: COLORS.textMuted }}>
+            Formato esperado:{' '}
+            <code style={{ background: '#F4F5F7', padding: '1px 4px', borderRadius: 3 }}>
+              {'[{ "level1": { "value": "...", "requestTypeId": 123 }, "level2": "...", "level3": "..." }]'}
+            </code>
+          </p>
+          <textarea
+            value={importText}
+            onChange={(e) => { setImportText(e.target.value); setImportError(''); }}
+            rows={18}
+            spellCheck={false}
+            style={{
+              ...INPUT_STYLE,
+              fontFamily: 'monospace',
+              fontSize: 12,
+              resize: 'vertical',
+              minHeight: 320,
+              whiteSpace: 'pre',
+              overflowX: 'auto',
+            }}
+          />
+          {importError && (
+            <p style={{ margin: '8px 0 0 0', color: COLORS.dangerBg, fontSize: 12 }}>
+              ⚠️ {importError}
+            </p>
+          )}
+        </Modal>
+      )}
 
       {/* ── Modales de agregar / editar / eliminar / habilitar ───────────────── */}
 
