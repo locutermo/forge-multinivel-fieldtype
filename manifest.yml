@@ -12,6 +12,9 @@ modules:
           - issue-transition
           - issue-view
           - portal-request
+      unlicensedAccess:
+          - unlicensed       
+          - customer
       view:
         formatter:
           expression: value
@@ -19,6 +22,7 @@ modules:
         experience:
           - issue-view
           - portal-view
+          
       contextConfig:
         resource: config-resource
       resolver:
