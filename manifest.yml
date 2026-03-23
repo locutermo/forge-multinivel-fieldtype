@@ -27,9 +27,16 @@ modules:
         resource: config-resource
       resolver:
         function: resolver-function
+  jira:workflowValidator:
+    - key: cascading-validator
+      name: Validador de Campo Cascada
+      description: Valida que el campo Segmento/pais tenga seleccionados tanto el nivel padre como el hijo.
+      function: validate-cascading
   function:
     - key: resolver-function
       handler: index.resolvers
+    - key: validate-cascading
+      handler: validator.validate
 resources:
   - key: edit-resource
     path: static/edit/build
@@ -53,7 +60,7 @@ permissions:
     - write:servicedesk-request
 app:
   runtime:
-    name: nodejs24.x
+    name: nodejs22.x
     memoryMB: 256
     architecture: arm64
   id: ari:cloud:ecosystem::app/33c54b3f-96ca-45f3-a451-1db699b78e64
