@@ -1,6 +1,6 @@
 import api, { route } from '@forge/api';
 
-const FIELD_ID = 'customfield_12002';
+const FIELD_ID = 'customfield_11246';
 
 export const validate = async (event) => {
   const { issue, modifiedFields } = event;
