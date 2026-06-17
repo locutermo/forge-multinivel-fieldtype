@@ -22,7 +22,6 @@ modules:
         experience:
           - issue-view
           - portal-view
-          
       contextConfig:
         resource: config-resource
       resolver:
