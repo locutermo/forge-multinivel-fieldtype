@@ -32,6 +32,9 @@ modules:
       name: Validador de Campo Cascada
       description: Valida que el campo Segmento/pais tenga seleccionados tanto el nivel padre como el hijo.
       function: validate-cascading
+      unlicensedAccess:
+        - unlicensed       
+        - customer
   function:
     - key: resolver-function
       handler: index.resolvers
