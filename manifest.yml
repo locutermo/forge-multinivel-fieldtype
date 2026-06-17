@@ -26,19 +26,16 @@ modules:
         resource: config-resource
       resolver:
         function: resolver-function
+
   jira:workflowValidator:
     - key: cascading-validator
       name: Validador de Campo Cascada
       description: Valida que el campo Segmento/pais tenga seleccionados tanto el nivel padre como el hijo.
-      function: validate-cascading
-      unlicensedAccess:
-        - unlicensed       
-        - customer
+      expression: "issue.customfield_11246 == null || issue.customfield_11246.child != null"
+      errorMessage: "Debes seleccionar también el segundo nivel en el campo Segmento/País."
   function:
     - key: resolver-function
       handler: index.resolvers
-    - key: validate-cascading
-      handler: validator.validate
 resources:
   - key: edit-resource
     path: static/edit/build
